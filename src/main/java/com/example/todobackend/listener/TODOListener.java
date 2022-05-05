@@ -8,14 +8,16 @@ import javax.sql.DataSource;
 
 @WebListener
 public class TODOListener implements ServletContextListener, HttpSessionListener, HttpSessionAttributeListener {
-    @Resource(name="java:comp/env/jdbc/pool4library")
+    @Resource(name="java:comp/env/jdbc/pool4todo")
     private DataSource pool;
     public TODOListener() {
     }
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        System.out.println("pool is working");
         System.out.println(pool);
+        System.out.println("pool is working");
         /* This method is called when the servlet context is initialized(when the Web application is deployed). */
     }
 
