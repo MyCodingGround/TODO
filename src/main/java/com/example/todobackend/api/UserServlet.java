@@ -122,7 +122,43 @@ public class UserServlet extends HttpServlet {
     }
 
 
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        System.out.println("do delete");
+        if (req.getPathInfo() == null || req.getPathInfo().equals("/")) {
+            resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, "Unable to delete all user yet");
+            return;
+        } else if (req.getPathInfo() != null &&
+                !req.getPathInfo().substring(1).matches("[A-Za-z0-9 ]+")) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "user not found");
+            System.out.println(req.getPathInfo().substring(1).matches("[A-Za-z ]+"));
+            return;
+        }
 
+        String username = req.getPathInfo().replaceAll("[/]", "");
 
+        try (Connection connection = pool.getConnection()) {
+            PreparedStatement stm = connection.
+                    prepareStatement("SELECT * FROM user WHERE username=?");
+            stm.setString(1, username);
+            ResultSet rst = stm.executeQuery();
+
+            if (rst.next()) {
+
+                stm = connection.prepareStatement("DELETE FROM user WHERE username=?");
+                stm.setString(1, username);
+                if (stm.executeUpdate() != 1) {
+                    throw new RuntimeException("Failed to delete the user");
+                }
+                resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+            } else {
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND, "user not found");
+            }
+        } catch (SQLException | RuntimeException e) {
+            e.printStackTrace();
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+
+    }
 
 }
