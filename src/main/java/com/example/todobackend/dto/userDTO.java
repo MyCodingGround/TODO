@@ -47,4 +47,6 @@ public class userDTO {
                 ", gmail='" + gmail + '\'' +
                 '}';
     }
+
+
 }
